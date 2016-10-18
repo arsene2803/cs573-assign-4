@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cleveland and McGill's</title>
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <style>
+        #agree {
+            height: 800px;
+            width: 800px;
+            margin-top:10%;
+            margin-bottom:0;
+            margin-left:auto;
+            margin-right:auto;
+        }
+
+        p {
+            width: 80%;
+            margin: auto;
+            font: 25px/1.5 Helvetica, sans-serif;
+        }
+
+        #agree_button{height:20px; position:relative; margin: -20px -50px; width:100px; top:50%; left:50%;}
+
+        #disagree_button
+        {
+            height:20px; position:relative; margin: -20px -50px; width:100px; top:50%; left:70%;
+        }
+
+    </style>
+    <script>
+        function page_load(){
+            var w = 960;
+            var h = 600;
+            var margin = {
+                top: 20,
+                bottom: 30,
+                left: 25,
+                right: 40
+            };
+            var width = w -margin.left-margin.right;
+            var height = h-margin.top-margin.bottom;
+            var svg = d3.select("body")
+                    .append("svg")
+                    .attr("width", w)
+                    .attr("height", h)
+                    .append("g")
+                    .attr("id", "content")
+                    .classed("display",true)
+                    .attr("transform","translate("+margin.left+","+margin.top+")");
+
+
+        }
+
+    </script>
+</head>
+<body>
+<div id="agree">
+    <p>
+        Do you want to see how well your accuracy in reading charts?.
+    </p>
+    <p>
+        You can do that by answering 10 questions regarding the percentage of every smaller value to a larger value based on different charts shown.
+    </p>
+    <p>
+        If you agree to do so, your answers will be recorded so that at the end you will be able to see how close your answers to the actual percentages.
+    </p>
+
+    <button id="agree_button"type="button">Agree</button>
+    <button id="disagree_button" type="button">Disagree</button>
+</div>
+</body>
+</html>
