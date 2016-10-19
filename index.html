@@ -29,6 +29,31 @@
 
     </style>
     <script>
+
+        //function to create 10 random data points between 0-100,min=0 and max=100
+        function getRandomSet(min, max) {
+            var count=0;
+            var dataset=[];
+            var rand_value=0;
+            while(count<10){
+                value= Math.floor(Math.random() * (max - min + 1)) + min;
+                if(dataset.indexOf(rand_value)===-1){
+                   dataset.push(value);
+                    count++;
+                }
+
+            }
+            return dataset;
+        }
+
+        //function to select a random point within the dataset
+        //length parameter corresponds to length of dataset
+        function getRandomPoint(length) {
+            var value=0;
+            value= Math.floor(Math.random() * (length - 0 + 1));
+            return value;
+        }
+
         function page_load(){
             var w = 960;
             var h = 600;
