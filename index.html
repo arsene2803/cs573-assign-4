@@ -30,6 +30,21 @@
     </style>
     <script>
 
+        window.onload = function() {
+            //y
+            var agree_button = document.getElementById("agree_button");
+            agree_button.addEventListener('click',remove_ele);
+        };
+
+
+        //function to remove elements from DOM
+        function remove_ele() {
+            var element = document.getElementById("agree");
+            element.parentNode.removeChild(element);
+            page_load();
+
+        }
+
         //function to create 10 random data points between 0-100,min=0 and max=100
         function getRandomSet(min, max) {
             var count=0;
@@ -37,7 +52,7 @@
             var rand_value=0;
             while(count<10){
                 value= Math.floor(Math.random() * (max - min + 1)) + min;
-                if(dataset.indexOf(rand_value)===-1){
+                if(dataset.indexOf(value)===-1){
                    dataset.push(value);
                     count++;
                 }
@@ -50,9 +65,133 @@
         //length parameter corresponds to length of dataset
         function getRandomPoint(length) {
             var value=0;
-            value= Math.floor(Math.random() * (length - 0 + 1));
+            value= Math.floor(Math.random() * (length+1));
             return value;
         }
+
+        //function to calculate the error
+        function errorestimator(d1,d2,guess){
+
+            var truePercent;
+            if(d1>=d2)
+                truePercent=(d2/d1)*100;
+            else
+                truePercent=(d1/d2)*100;
+
+            var diff=Math.abs(truePercent-guess);
+            if(diff===0)
+                return 0;
+            else
+                return Math.log2(diff+1/8);
+        }
+
+
+        //function to add a bar chart
+        function create_barchart(svg,width,height){
+
+            var dataset=getRandomSet(0,100);
+            var border=2;
+            var bordercolor='black';
+
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+            var y = d3.scale.linear().range([height, 0]);
+            x.domain(dataset.map(function(d,i) { return i }));
+            y.domain([0, d3.max(dataset)]);
+
+            var xAxis = d3.svg.axis()
+                    .scale(x)
+                    .tickFormat("")
+                    .orient("bottom");
+            var yAxis = d3.svg.axis()
+                    .scale(y)
+                    .tickFormat("")
+                    .orient("left");
+
+
+            svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis);
+
+            svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis);
+
+
+
+            svg.selectAll(".rect")
+                    .data(dataset)
+                    .enter()
+                    .append("rect")
+                    .attr("x",function(d,i) { return x(i);})
+                    .attr("y",function (d) {
+                        return  y(d);
+
+
+                    })
+                    .attr("width",x.rangeBand())
+                    .attr("height",function (d) {
+                        return height - y(d);
+
+                    })
+                    .style("stroke", bordercolor)
+                    .style("fill", "none")
+                    .style("stroke-width", border);
+
+            //plotting 2 random points
+            var count=0;
+            var points=[];
+            var value;
+            while(count<2){
+                value=getRandomPoint(9);
+                if(points.indexOf(value)===-1){
+                    points.push(value);
+                    count++;
+                }
+
+            }
+
+            svg.selectAll("dot")
+                    .data(points)
+                    .enter().append("circle")
+                    .attr("r", 4)
+                    .attr("cx", function(d) { return (x(d)+x.rangeBand()/2); })
+                    .attr("cy", function(d) { return y(getRandomPoint(dataset[d])); });
+
+
+            //add paragraph and buttons
+            create_interface();
+
+
+        }
+
+        //function to add paragraph
+        function  create_interface(parentId) {
+            var element = document.getElementById(parentId);
+            var div = document.createElement("div");
+            div.setAttribute('id', "input");
+            var para = document.createElement("p");
+            var node = document.createTextNode("");
+            para.appendChild(node);
+
+
+
+
+
+
+        }
+
+        function addElement(parentId, elementTag, elementId, html) {
+            // Adds an element to the document
+            var p = document.getElementById(parentId);
+            var newElement = document.createElement(elementTag);
+            newElement.setAttribute('id', elementId);
+            newElement.innerHTML = html;
+            p.appendChild(newElement);
+        }
+
+
+
 
         function page_load(){
             var w = 960;
@@ -67,19 +206,20 @@
             var height = h-margin.top-margin.bottom;
             var svg = d3.select("body")
                     .append("svg")
-                    .attr("width", w)
-                    .attr("height", h)
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
                     .append("g")
-                    .attr("id", "content")
-                    .classed("display",true)
-                    .attr("transform","translate("+margin.left+","+margin.top+")");
+                    .attr("transform",
+                            "translate(" + margin.left + "," + margin.top + ")");
+
+            create_barchart(svg,width,height);
 
 
         }
 
     </script>
 </head>
-<body>
+<body id="body">
 <div id="agree">
     <p>
         Do you want to see how well your accuracy in reading charts?.
