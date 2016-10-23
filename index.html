@@ -29,6 +29,15 @@
 
     </style>
     <script>
+        var participant_ID="participant_"+Math.floor(Math.random()*999999);
+        var count=1;
+        var trails=[];
+        var trueValue;
+        var reportedValue;
+        var visType;
+        var svg;
+        var vis=["ver_bar","pie_chart","tree_map"];
+
 
         window.onload = function() {
             //y
@@ -70,15 +79,9 @@
         }
 
         //function to calculate the error
-        function errorestimator(d1,d2,guess){
+        function errorestimator(truePercent,reportedValue){
 
-            var truePercent;
-            if(d1>=d2)
-                truePercent=(d2/d1)*100;
-            else
-                truePercent=(d1/d2)*100;
-
-            var diff=Math.abs(truePercent-guess);
+            var diff=Math.abs(truePercent-reportedValue);
             if(diff===0)
                 return 0;
             else
@@ -87,11 +90,19 @@
 
 
         //function to add a bar chart
-        function create_barchart(svg,width,height){
+        function create_barchart(svg,w,h){
 
             var dataset=getRandomSet(0,100);
             var border=2;
             var bordercolor='black';
+            var margin = {
+                top: 20,
+                bottom: 30,
+                left: 25,
+                right: 40
+            };
+            var width = w -margin.left-margin.right;
+            var height = h-margin.top-margin.bottom;
 
             var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
             var y = d3.scale.linear().range([height, 0]);
@@ -158,44 +169,16 @@
                     .attr("cx", function(d) { return (x(d)+x.rangeBand()/2); })
                     .attr("cy", function(d) { return y(getRandomPoint(dataset[d])); });
 
-
-            //add paragraph and buttons
-            create_interface();
-
-
+            //returning the true value
+            if(points[0]>points[1])
+                return points[1]/points[0]*100;
+            else
+                return points[0]/points[1]*100;
         }
 
-        //function to add paragraph
-        function  create_interface(parentId) {
-            var element = document.getElementById(parentId);
-            var div = document.createElement("div");
-            div.setAttribute('id', "input");
-            var para = document.createElement("p");
-            var node = document.createTextNode("");
-            para.appendChild(node);
-
-
-
-
-
-
-        }
-
-        function addElement(parentId, elementTag, elementId, html) {
-            // Adds an element to the document
-            var p = document.getElementById(parentId);
-            var newElement = document.createElement(elementTag);
-            newElement.setAttribute('id', elementId);
-            newElement.innerHTML = html;
-            p.appendChild(newElement);
-        }
-
-
-
-
-        function page_load(){
-            var w = 960;
-            var h = 600;
+        function create_svg(w,h){
+            var w = w;
+            var h = h;
             var margin = {
                 top: 20,
                 bottom: 30,
@@ -211,9 +194,63 @@
                     .append("g")
                     .attr("transform",
                             "translate(" + margin.left + "," + margin.top + ")");
+            return svg;
 
-            create_barchart(svg,width,height);
+        }
 
+        function push_trail(){
+            reportedValue=document.getElementById("reportedValue").value;
+            var error=errorestimator(trueValue,reportedValue);
+            var report={
+                vis:visType,
+                true:trueValue,
+                report:reportedValue,
+                error:error
+
+            };
+            trails.push(report);
+        }
+
+        //function to send the file to server
+        function generate_chart(){
+
+        }
+
+        function  update_chart() {
+            //remove elements of the svg
+        svg.selectAll("*").remove();
+            push_trail();
+            console.log(trails);
+            document.getElementById("reportedValue").value="";
+
+        count++;
+            if(count<60){
+                visType=vis[count%3];
+                switch (visType){
+                    case vis[0]:create_barchart(svg,960,600);
+                        break;
+                    case vis[1]:break;
+                    case vis[2]:break;
+
+                }
+
+
+            }
+            else
+                generate_report();
+
+
+        }
+
+
+
+
+
+        function page_load(){
+            svg=create_svg(960,600);
+            trueValue=create_barchart(svg,960,600);
+            visType=vis[0];
+            document.getElementById("instructions").innerHTML="Two values are marked with dots.<br>What percentage do you think the smaller value is of the larger value?<br>Please type <u>just the number</u> in below.<br><br>(i.e. if you think the smaller one is exactly half of the larger one, type in 50)<br><br><input id='reportedValue' type='tel' placeholder='Enter value here'><input type='button' onclick='update_chart();' value='Next'>";
 
         }
 
@@ -234,5 +271,6 @@
     <button id="agree_button"type="button">Agree</button>
     <button id="disagree_button" type="button">Disagree</button>
 </div>
+<p id='instructions'></p>
 </body>
 </html>
