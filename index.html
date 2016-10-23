@@ -58,7 +58,6 @@
         function getRandomSet(min, max) {
             var count=0;
             var dataset=[];
-            var rand_value=0;
             while(count<10){
                 value= Math.floor(Math.random() * (max - min + 1)) + min;
                 if(dataset.indexOf(value)===-1){
@@ -86,6 +85,74 @@
                 return 0;
             else
                 return Math.log2(diff+1/8);
+        }
+
+        //function to create a pie chart
+        function  pieChart(svg){
+
+            var border=2;
+            var bordercolor='black';
+            var radius = 200;
+            var dataset=getRandomSet(0,100);
+
+            var chart=svg.data([dataset])
+                    .append("svg:g")
+                    .attr("transform", "translate(" + radius + "," + radius + ")") ;
+
+            console.log(svg.data(dataset));
+
+            var arc = d3.svg.arc() // draw arc of given radius
+                    .outerRadius(radius);
+
+            var pie = d3.layout.pie() // assign data for pie chart
+                    .value(function(d) { return d; });
+
+            var arcs = chart.selectAll("g.slice") // slice the circle
+                    .data(pie)
+                    .enter()
+                    .append("svg:g")
+                    .attr("class", "slice");
+
+            console.log("error");
+
+            arcs.append("svg:path")
+                    .style("stroke", bordercolor)
+                    .style("fill", "none")
+                    .style("stroke-width", border)
+                    .attr("d", arc);
+
+            arc = d3.svg.arc().innerRadius(0).outerRadius(radius);
+            var centers = pie(dataset).map(arc.centroid);
+
+        //plotting 2 random points
+            var count=0;
+            var points=[];
+            var value;
+            while(count<2){
+                value=getRandomPoint(9);
+                if(points.indexOf(value)===-1){
+                    points.push(value);
+                    count++;
+                }
+
+            }
+
+            chart.selectAll("dot")
+                    .data(points)
+                    .enter().append("circle")
+                    .attr("r", 4)
+                    .attr("cx", function(d){
+                        return centers[d][0];
+                    })
+                    .attr("cy", function(d){
+                        return centers[d][1];
+                    });
+
+            if(dataset[points[0]]>dataset[points[1]])
+                trueValue= dataset[points[1]]/dataset[points[0]] * 100;
+            else
+                trueValue= dataset[points[0]]/dataset[points[1]] * 100;
+
         }
 
 
@@ -176,6 +243,7 @@
                 return points[0]/points[1]*100;
         }
 
+        //function to create the svg canvas
         function create_svg(w,h){
             var w = w;
             var h = h;
@@ -197,6 +265,7 @@
             return svg;
 
         }
+
 
         function push_trail(){
             reportedValue=document.getElementById("reportedValue").value;
@@ -222,9 +291,10 @@
             push_trail();
             console.log(trails);
             document.getElementById("reportedValue").value="";
+            pieChart(svg);
 
         count++;
-            if(count<60){
+            if(count>60){
                 visType=vis[count%3];
                 switch (visType){
                     case vis[0]:create_barchart(svg,960,600);
@@ -236,8 +306,8 @@
 
 
             }
-            else
-                generate_report();
+            //else
+                //generate_report();
 
 
         }
