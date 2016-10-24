@@ -156,6 +156,116 @@
         }
 
 
+
+        //function to add stacked graph
+        function create_stackgraph(w,h){
+
+            var data;
+            var data_parsed;
+            var dataset=getRandomSet(0,100);
+            data=dataset.map(function (d) {
+                return [d];
+
+                });
+            data_parsed=data.map(function (d) {
+                return d.map(function (p,i) {
+                    return {x:i,y:p,y0:0};
+
+
+                });
+
+            });
+
+            var border=2;
+            var bordercolor='black';
+            var margin = {
+                top: 20,
+                bottom: 30,
+                left: 25,
+                right: 40
+            };
+            var width = w -margin.left-margin.right;
+            var height = h-margin.top-margin.bottom;
+
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+            x.domain(dataset.map(function(d,i) { return i }));
+
+            var stack=d3.layout.stack();
+            var layers=stack(data_parsed);
+            var y = d3.scale.linear().range([height, 0]);
+            var yStackMax = d3.max(layers, function(layer) {return d3.max(layer, function(d) { return d.y0 + d.y; }); });
+            y.domain([0, yStackMax]);
+
+
+            var xAxis = d3.svg.axis()
+                    .scale(x)
+                    .tickFormat("")
+                    .orient("bottom");
+
+            var yAxis = d3.svg.axis()
+                    .scale(y)
+                    .tickFormat("")
+                    .orient("left");
+            console.log(stack(data_parsed));
+
+            svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis);
+
+            svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis);
+
+            svg.selectAll(".rect")
+                    .data(stack(data_parsed))
+                    .enter()
+                    .append("rect")
+                    .attr("x", width/2)
+                    .attr("y",function (d) {
+                        return y(d[0].y0 + d[0].y);
+
+
+                    })
+                    .attr("width",200)
+                    .attr("height",function (d) {
+                       return y(d[0].y0) - y(d[0].y0 + d[0].y);
+
+                    })
+                    .style("stroke", bordercolor)
+                    .style("fill", "none")
+                    .style("stroke-width", border);
+
+            //plotting 2 random points
+            var count=0;
+            var points=[];
+            var value;
+            while(count<2){
+                value=getRandomPoint(9);
+                if(points.indexOf(value)===-1){
+                    points.push(value);
+                    count++;
+                }
+
+            }
+
+            svg.selectAll("dot")
+                    .data(points)
+                    .enter().append("circle")
+                    .attr("r", 4)
+                    .attr("cx", function(d) { return  width/2+100;})
+                    .attr("cy", function(d) { return y(getRandomPoint(dataset[d])); });
+
+            //returning the true value
+            if(points[0]>points[1])
+                trueValue= points[1]/points[0]*100;
+            else
+                trueValue= points[0]/points[1]*100;
+
+        }
+
+
+
         //function to add a bar chart
         function create_barchart(svg,w,h){
 
@@ -174,7 +284,7 @@
             var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
             var y = d3.scale.linear().range([height, 0]);
             x.domain(dataset.map(function(d,i) { return i }));
-            y.domain([0, d3.max(dataset)]);
+            y.domain([0,100]);
 
             var xAxis = d3.svg.axis()
                     .scale(x)
@@ -238,9 +348,9 @@
 
             //returning the true value
             if(points[0]>points[1])
-                return points[1]/points[0]*100;
+                trueValue= points[1]/points[0]*100;
             else
-                return points[0]/points[1]*100;
+                trueValue= points[0]/points[1]*100;
         }
 
         //function to create the svg canvas
@@ -280,6 +390,8 @@
             trails.push(report);
         }
 
+
+
         //function to send the file to server
         function generate_chart(){
 
@@ -291,16 +403,17 @@
             push_trail();
             console.log(trails);
             document.getElementById("reportedValue").value="";
-            pieChart(svg);
 
         count++;
-            if(count>60){
+            if(count<60){
                 visType=vis[count%3];
                 switch (visType){
                     case vis[0]:create_barchart(svg,960,600);
                         break;
-                    case vis[1]:break;
-                    case vis[2]:break;
+                    case vis[1]:pieChart(svg);
+                        break;
+                    case vis[2]:create_stackgraph(960,600);
+                        break;
 
                 }
 
@@ -318,7 +431,7 @@
 
         function page_load(){
             svg=create_svg(960,600);
-            trueValue=create_barchart(svg,960,600);
+            create_barchart(svg,960,600);
             visType=vis[0];
             document.getElementById("instructions").innerHTML="Two values are marked with dots.<br>What percentage do you think the smaller value is of the larger value?<br>Please type <u>just the number</u> in below.<br><br>(i.e. if you think the smaller one is exactly half of the larger one, type in 50)<br><br><input id='reportedValue' type='tel' placeholder='Enter value here'><input type='button' onclick='update_chart();' value='Next'>";
 
