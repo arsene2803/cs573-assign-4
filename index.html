@@ -262,14 +262,18 @@
                 }
 
             }
+
             var rand_values=[];
+            var plot_values=[];
             for(j=0;j<2;j++){
-                rand_values.push(getRandomPoint(data_parsed[points[j]][0].y0+data_parsed[points[j]][0].y));
+                var v=data_parsed[points[j]];
+                plot_values.push((v[0].y0+v[0].y)+(v[0].y0 - (v[0].y0 + v[0].y))/2);
+                rand_values.push(v[0].y);
 
             }
 
             svg.selectAll("dot")
-                    .data(rand_values)
+                    .data(plot_values)
                     .enter().append("circle")
                     .attr("r", 4)
                     .attr("cx", function(d) { return  width/2+100;})
@@ -358,25 +362,23 @@
 
             }
 
-            var rand_values=[];
-            for(j=0;j<2;j++){
-                rand_values.push(getRandomPoint(dataset[j]));
-
-            }
-
 
             svg.selectAll("dot")
-                    .data(rand_values)
+                    .data(points)
                     .enter().append("circle")
                     .attr("r", 4)
-                    .attr("cx", function(d,i) { return (x(i)+x.rangeBand()/2); })
-                    .attr("cy", function(d) { return y(d); });
+                    .attr("cx", function(d) { return (x(d)+x.rangeBand()/2); })
+                    .attr("cy", function(d) { return y(getRandomPoint(dataset[d])); });
+
+            value=[];
+            value.push(dataset[points[0]]);
+            value.push(dataset[points[1]]);
 
             //returning the true value
-            if(rand_values[0]>rand_values[1])
-                trueValue= rand_values[1]/rand_values[0]*100;
+            if(value[0]>value[1])
+                trueValue= value[1]/value[0]*100;
             else
-                trueValue= rand_values[0]/rand_values[1]*100;
+                trueValue= value[0]/value[1]*100;
         }
 
         //function to create the svg canvas
@@ -461,7 +463,7 @@
             document.getElementById("reportedValue").value="";
 
         count++;
-            if(count<=number_trails){
+            if(count<60){
                 visType=vis[count%3];
                 switch (visType){
                     case vis[0]:create_barchart(svg,960,600);
