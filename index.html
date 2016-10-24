@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Cleveland and McGill's</title>
     <script src="//d3js.org/d3.v3.min.js"></script>
+    <script src="https://rawgit.com/gka/d3-jetpack/master/d3-jetpack.js"></script>
     <style>
         #agree {
             height: 800px;
@@ -22,10 +23,21 @@
 
         #agree_button{height:20px; position:relative; margin: -20px -50px; width:100px; top:50%; left:50%;}
 
-        #disagree_button
-        {
-            height:20px; position:relative; margin: -20px -50px; width:100px; top:50%; left:70%;
+        table{
+            width: 60%;
+            margin-top:5%;
+            margin-bottom:10%;
+            margin-left:auto;
+            margin-right:auto;
+
         }
+
+
+
+        th { text-align: left; }
+        th, td { padding: 0 1em 0.5ex 0;}
+        th.center, td.center { text-align: center; }
+        th.num, td.num { text-align: right; }
 
     </style>
     <script>
@@ -36,8 +48,9 @@
         var reportedValue;
         var visType;
         var svg;
-        var numbeer_trails=60;
-        var vis=["ver_bar","pie_chart","stack_map"];
+        var number_trails=60;
+        var container;
+        var vis=["Bar Chart","Pie Chart","Stack graph"];
 
 
         window.onload = function() {
@@ -249,19 +262,24 @@
                 }
 
             }
+            var rand_values=[];
+            for(j=0;j<2;j++){
+                rand_values.push(getRandomPoint(data_parsed[points[j]][0].y0+data_parsed[points[j]][0].y));
+
+            }
 
             svg.selectAll("dot")
-                    .data(points)
+                    .data(rand_values)
                     .enter().append("circle")
                     .attr("r", 4)
                     .attr("cx", function(d) { return  width/2+100;})
-                    .attr("cy", function(d) { return y(getRandomPoint(data_parsed[d][0].y0+data_parsed[d][0].y)); });
+                    .attr("cy", function(d) { return y(d); });
 
             //returning the true value
-            if(points[0]>points[1])
-                trueValue= points[1]/points[0]*100;
+            if(rand_values[0]>rand_values[1])
+                trueValue= rand_values[1]/rand_values[0]*100;
             else
-                trueValue= points[0]/points[1]*100;
+                trueValue= rand_values[0]/rand_values[1]*100;
 
         }
 
@@ -340,18 +358,25 @@
 
             }
 
+            var rand_values=[];
+            for(j=0;j<2;j++){
+                rand_values.push(getRandomPoint(dataset[j]));
+
+            }
+
+
             svg.selectAll("dot")
-                    .data(points)
+                    .data(rand_values)
                     .enter().append("circle")
                     .attr("r", 4)
-                    .attr("cx", function(d) { return (x(d)+x.rangeBand()/2); })
-                    .attr("cy", function(d) { return y(getRandomPoint(dataset[d])); });
+                    .attr("cx", function(d,i) { return (x(i)+x.rangeBand()/2); })
+                    .attr("cy", function(d) { return y(d); });
 
             //returning the true value
-            if(points[0]>points[1])
-                trueValue= points[1]/points[0]*100;
+            if(rand_values[0]>rand_values[1])
+                trueValue= rand_values[1]/rand_values[0]*100;
             else
-                trueValue= points[0]/points[1]*100;
+                trueValue= rand_values[0]/rand_values[1]*100;
         }
 
         //function to create the svg canvas
@@ -366,11 +391,12 @@
             };
             var width = w -margin.left-margin.right;
             var height = h-margin.top-margin.bottom;
-            var svg = d3.select("body")
+            container = d3.select("body")
                     .append("svg")
                     .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
-                    .append("g")
+                    .attr("height", height + margin.top + margin.bottom);
+
+            var svg=container.append("g")
                     .attr("transform",
                             "translate(" + margin.left + "," + margin.top + ")");
             return svg;
@@ -413,13 +439,21 @@
                 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 
             xmlhttp.onreadystatechange=function(){};
-            xmlhttp.open("POST","http://ec2-54-238-238-100.ap-northeast-1.compute.amazonaws.com/csvUpdate.php",true);
+            xmlhttp.open("POST","csvUpdate.php",true);
             xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
             xmlhttp.send("file="+file+'&'+'ID='+participant_ID);
 
         }
 
         function  update_chart() {
+
+        if(document.getElementById("reportedValue").value ==""){
+            alert("Please enter a value");
+            return ;
+
+        }
+
+
             //remove elements of the svg
         svg.selectAll("*").remove();
             push_trail();
@@ -427,7 +461,7 @@
             document.getElementById("reportedValue").value="";
 
         count++;
-            if(count<=numbeer_trails){
+            if(count<=number_trails){
                 visType=vis[count%3];
                 switch (visType){
                     case vis[0]:create_barchart(svg,960,600);
@@ -442,16 +476,15 @@
 
             }
             else{
+                document.getElementById("instructions").innerHTML="Thank you ! For taking the survey. Have a good one.Below are the results of the trail";
+                d3.select("svg").remove();
+                tabulate_results();
                 send_file();
 
             }
 
 
-
         }
-
-
-
 
 
         function page_load(){
@@ -459,6 +492,45 @@
             create_barchart(svg,960,600);
             visType=vis[0];
             document.getElementById("instructions").innerHTML="Two values are marked with dots.<br>What percentage do you think the smaller value is of the larger value?<br>Please type <u>just the number</u> in below.<br><br>(i.e. if you think the smaller one is exactly half of the larger one, type in 50)<br><br><input id='reportedValue' type='tel' placeholder='Enter value here'><input type='button' onclick='update_chart();' value='Next'>";
+
+        }
+
+        function tabulate_results(){
+            var columns = [
+                { head: 'Vis Type', cl: 'title', html: ƒ('vis') },
+                { head: 'True Value', cl: 'center', html: ƒ('true') },
+                { head: 'Reported Value', cl: 'center', html: ƒ('report') },
+                { head: 'Error', cl: 'num', html: ƒ('error') }
+            ];
+
+            var table = d3.select('body')
+                    .append('table');
+
+            table.append('thead').append('tr')
+                    .selectAll('th')
+                    .data(columns).enter()
+                    .append('th')
+                    .attr('class', ƒ('cl'))
+                    .text(ƒ('head'));
+
+            table.append('tbody')
+                    .selectAll('tr')
+                    .data(trails).enter()
+                    .append('tr')
+                    .selectAll('td')
+                    .data(function(row, i) {
+                        return columns.map(function(c) {
+                            // compute cell values for this specific row
+                            var cell = {};
+                            d3.keys(c).forEach(function(k) {
+                                cell[k] = typeof c[k] == 'function' ? c[k](row,i) : c[k];
+                            });
+                            return cell;
+                        });
+                    }).enter()
+                    .append('td')
+                    .html(ƒ('html'))
+                    .attr('class', ƒ('cl'));
 
         }
 
@@ -477,7 +549,6 @@
     </p>
 
     <button id="agree_button"type="button">Agree</button>
-    <button id="disagree_button" type="button">Disagree</button>
 </div>
 <p id='instructions'></p>
 </body>
