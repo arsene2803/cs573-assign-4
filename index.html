@@ -393,7 +393,26 @@
 
 
         //function to send the file to server
-        function generate_chart(){
+        function send_file(){
+            //sending the data to server
+            var file="";
+            i=0;
+
+            while(i<60){
+                file+=file+participant_ID+','+trails[i].vis+','+trails[i].true+','+trails[i].report+','+trails[i].error;
+            }
+
+            var xmlhttp;
+
+            if (window.XMLHttpRequest)
+                xmlhttp=new XMLHttpRequest();
+                else
+                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+
+            xmlhttp.onreadystatechange=function(){};
+            xmlhttp.open("POST","csvUpdate.php",true);
+            xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            xmlhttp.send("file="+file+'&'+'ID='+participant_ID);
 
         }
 
@@ -419,8 +438,7 @@
 
 
             }
-            //else
-                //generate_report();
+
 
 
         }
