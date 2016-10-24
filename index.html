@@ -24,20 +24,31 @@
         #agree_button{height:20px; position:relative; margin: -20px -50px; width:100px; top:50%; left:50%;}
 
         table{
-            width: 60%;
             margin-top:5%;
-            margin-bottom:10%;
-            margin-left:auto;
-            margin-right:auto;
-
         }
 
 
+        thead {
+            display: table;
+            table-layout:fixed;
+            width: 100%;
+        }
+        tbody {
+            display: block;
+            height: auto;
+            overflow-y: scroll;
+        }
+        tbody tr {
+            display: table;
+            table-layout:fixed;
+            width: 100%;
+        }
+        th, td {
+            width: auto;
+            text-align: center;
+            border: 1px solid;
+        }
 
-        th { text-align: left; }
-        th, td { padding: 0 1em 0.5ex 0;}
-        th.center, td.center { text-align: center; }
-        th.num, td.num { text-align: right; }
 
     </style>
     <script>
@@ -368,7 +379,7 @@
                     .enter().append("circle")
                     .attr("r", 4)
                     .attr("cx", function(d) { return (x(d)+x.rangeBand()/2); })
-                    .attr("cy", function(d) { return y(getRandomPoint(dataset[d])); });
+                    .attr("cy", function(d) { return y(dataset[d]-dataset[d]/2); });
 
             value=[];
             value.push(dataset[points[0]]);
@@ -410,6 +421,7 @@
             reportedValue=document.getElementById("reportedValue").value;
             var error=errorestimator(trueValue,reportedValue);
             var report={
+                num:count+1,
                 vis:visType,
                 true:trueValue,
                 report:reportedValue,
@@ -429,7 +441,7 @@
 
             while(i<trails.length){
 
-                file+=participant_ID+','+trails[i].vis+','+trails[i].true+','+trails[i].report+','+trails[i].error+'\n';
+                file+=participant_ID+','+trails[i].num+','+trails[i].vis+','+trails[i].true+','+trails[i].report+','+trails[i].error+'\n';
                 i++;
                 console.log(file+" "+i);
             }
@@ -463,7 +475,7 @@
             document.getElementById("reportedValue").value="";
 
         count++;
-            if(count<60){
+            if(count<number_trails){
                 visType=vis[count%3];
                 switch (visType){
                     case vis[0]:create_barchart(svg,960,600);
@@ -499,6 +511,7 @@
 
         function tabulate_results(){
             var columns = [
+                { head: 'Trial Num', cl: 'title', html: ƒ('num') },
                 { head: 'Vis Type', cl: 'title', html: ƒ('vis') },
                 { head: 'True Value', cl: 'center', html: ƒ('true') },
                 { head: 'Reported Value', cl: 'center', html: ƒ('report') },
