@@ -36,7 +36,8 @@
         var reportedValue;
         var visType;
         var svg;
-        var vis=["ver_bar","pie_chart","tree_map"];
+        var numbeer_trails=60;
+        var vis=["ver_bar","pie_chart","stack_map"];
 
 
         window.onload = function() {
@@ -398,11 +399,13 @@
             var file="";
             i=0;
 
-            while(i<60){
-                file+=file+participant_ID+','+trails[i].vis+','+trails[i].true+','+trails[i].report+','+trails[i].error;
+            while(i<trails.length){
+
+                file+=participant_ID+','+trails[i].vis+','+trails[i].true+','+trails[i].report+','+trails[i].error+'\n';
+                i++;
+                console.log(file+" "+i);
             }
 
-            var xmlhttp;
 
             if (window.XMLHttpRequest)
                 xmlhttp=new XMLHttpRequest();
@@ -410,7 +413,7 @@
                 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 
             xmlhttp.onreadystatechange=function(){};
-            xmlhttp.open("POST","csvUpdate.php",true);
+            xmlhttp.open("POST","http://ec2-54-238-238-100.ap-northeast-1.compute.amazonaws.com/csvUpdate.php",true);
             xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
             xmlhttp.send("file="+file+'&'+'ID='+participant_ID);
 
@@ -424,7 +427,7 @@
             document.getElementById("reportedValue").value="";
 
         count++;
-            if(count<60){
+            if(count<=numbeer_trails){
                 visType=vis[count%3];
                 switch (visType){
                     case vis[0]:create_barchart(svg,960,600);
@@ -436,6 +439,10 @@
 
                 }
 
+
+            }
+            else{
+                send_file();
 
             }
 
