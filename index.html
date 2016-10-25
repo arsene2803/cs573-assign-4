@@ -6,6 +6,11 @@
     <script src="//d3js.org/d3.v3.min.js"></script>
     <script src="https://rawgit.com/gka/d3-jetpack/master/d3-jetpack.js"></script>
     <style>
+        .main{
+            padding: 2em 0;
+        }
+
+
         #agree {
             height: 800px;
             width: 800px;
@@ -115,7 +120,7 @@
         //function to create a pie chart
         function  pieChart(svg){
 
-            var border=2;
+            var border=1.5;
             var bordercolor='black';
             var radius = 200;
             var dataset=getRandomSet(0,100);
@@ -553,17 +558,24 @@
 </head>
 <body id="body">
 <div id="agree">
+    <center>
+    <h1>
+        Data Visualization Effectiveness
+    </h1>
+    <h2 >
+        Do you want to know how accurate you are in reading charts?
+    </h2>
     <p>
-        Do you want to see how well your accuracy in reading charts?.
+        You can do that by taking this experiment survey. You will be asked to put the percentage of every smaller value of a larger value on random charts.
     </p>
     <p>
-        You can do that by answering 60 questions regarding the percentage of every smaller value to a larger value based on different charts shown.
-    </p>
-    <p>
-        If you agree to do so, your answers will be recorded so that at the end you will be able to see how close your answers to the actual percentages.
-    </p>
+        If you are willing to do so, only your answers that will be recorded, nothing else, so that you will be able to see how close your answers to the actual percentages at the end of the survey.<br>
+        Do you want to give a try? Please click the following button.<br>
 
-    <button id="agree_button"type="button">Agree</button>
+    </p>
+    </center>
+    <div class = "main">
+    <button id="agree_button"type="button">Yes I do!</button></div>
 </div>
 <p id='instructions'></p>
 </body>
