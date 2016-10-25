@@ -129,8 +129,6 @@
                     .append("svg:g")
                     .attr("transform", "translate(" + radius + "," + radius + ")") ;
 
-            console.log(svg.data(dataset));
-
             var arc = d3.svg.arc() // draw arc of given radius
                     .outerRadius(radius);
 
@@ -143,7 +141,6 @@
                     .append("svg:g")
                     .attr("class", "slice");
 
-            console.log("error");
 
             arcs.append("svg:path")
                     .style("stroke", bordercolor)
@@ -179,9 +176,9 @@
                     });
 
             if(dataset[points[0]]>dataset[points[1]])
-                trueValue= dataset[points[1]]/dataset[points[0]] * 100;
+                trueValue=Math.round( dataset[points[1]]/dataset[points[0]] * 100);
             else
-                trueValue= dataset[points[0]]/dataset[points[1]] * 100;
+                trueValue= Math.round(dataset[points[0]]/dataset[points[1]] * 100);
 
         }
 
@@ -236,7 +233,7 @@
                     .scale(y)
                     .tickFormat("")
                     .orient("left");
-            console.log(stack(data_parsed));
+
 
             svg.append("g")
                     .attr("class", "x axis")
@@ -297,9 +294,9 @@
 
             //returning the true value
             if(rand_values[0]>rand_values[1])
-                trueValue= rand_values[1]/rand_values[0]*100;
+                trueValue= Math.round(rand_values[1]/rand_values[0]*100);
             else
-                trueValue= rand_values[0]/rand_values[1]*100;
+                trueValue= Math.round(rand_values[0]/rand_values[1]*100);
 
         }
 
@@ -392,9 +389,9 @@
 
             //returning the true value
             if(value[0]>value[1])
-                trueValue= value[1]/value[0]*100;
+                trueValue= Math.round(value[1]/value[0]*100);
             else
-                trueValue= value[0]/value[1]*100;
+                trueValue= Math.round(value[0]/value[1]*100);
         }
 
         //function to create the svg canvas
@@ -423,7 +420,7 @@
 
 
         function push_trail(){
-            reportedValue=document.getElementById("reportedValue").value;
+            reportedValue=parseInt(document.getElementById("reportedValue").value);
             var error=errorestimator(trueValue,reportedValue);
             var report={
                 num:count+1,
@@ -448,7 +445,6 @@
 
                 file+=participant_ID+','+trails[i].num+','+trails[i].vis+','+trails[i].true+','+trails[i].report+','+trails[i].error+'\n';
                 i++;
-                console.log(file+" "+i);
             }
 
 
